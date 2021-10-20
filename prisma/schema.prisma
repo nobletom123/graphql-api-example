@@ -1,0 +1,63 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Customer {
+  id      String      @id @default(uuid())
+  email   String   @unique
+  firstName    String?
+  lastName String?
+  password String
+  emailVerified Boolean
+  stripeCustomerId String  @default("")
+  artPieces Order[]
+}
+
+model Artist {
+  id      String      @id @default(uuid())
+  email String  @unique
+  firstName    String?
+  lastName String?
+  password String
+  artPieces ArtPiece[]
+}
+
+model ArtPiece {
+  id String @id @default(uuid())
+  name String
+  description String?
+  artist Artist? @relation(fields: [artistId], references: [id])
+  artistId String?
+  exhibition Exhibition? @relation(fields: [exhibitionId], references: [id])
+  exhibitionId String?
+  order Order?
+}
+
+model Exhibition {
+  id String @id @default(uuid())
+  name String
+  description String?
+  startDate String
+  endDate String
+  collection ArtPiece[]
+  orders Order[]
+}
+
+model Order {
+  id String @id @default(uuid())
+  artPiece ArtPiece? @relation(fields: [artPieceId], references: [id])
+  artPieceId String?
+  exhibition Exhibition? @relation(fields: [exhibitionId], references: [id])
+  exhibitionId String?
+  customer Customer @relation(fields: [customerId], references: [id])
+  customerId String
+  status String
+}
